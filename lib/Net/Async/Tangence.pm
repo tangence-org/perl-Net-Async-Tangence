@@ -16,9 +16,10 @@ C<Net::Async::Tangence> - use L<Tangence> with L<IO::Async>
 
 =cut
 
-# Keep perl happy; keep Britain tidy
-1;
-
 =head1 AUTHOR
 
 Paul Evans <leonerd@leonerd.org.uk>
+
+=cut
+
+0x55AA;
