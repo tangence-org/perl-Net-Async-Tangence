@@ -71,7 +71,7 @@ sub _init
    my $self = shift;
    my ( $params ) = @_;
 
-   $self->{identity} = delete $params->{identity};
+   $self->identity( delete $params->{identity} );
 
    $self->SUPER::_init( $params );
 
