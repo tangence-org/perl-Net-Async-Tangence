@@ -17,6 +17,31 @@ use Carp;
 
 use Net::Async::Tangence::ServerProtocol;
 
+=head1 NAME
+
+C<Net::Async::Tangence::Server> - serve C<Tangence> clients using C<IO::Async>
+
+=head1 DESCRIPTION
+
+This subclass of L<IO::Async::Listener> accepts L<Tangence> client
+connections.
+
+=cut
+
+=head1 PARAMETERS
+
+The following named parameters may be passed to C<new> or C<configure>:
+
+=over 8
+
+=item registry => Tangence::Registry
+
+The L<Tangence::Registry> for the server's objects.
+
+=back
+
+=cut
+
 sub _init
 {
    my $self = shift;

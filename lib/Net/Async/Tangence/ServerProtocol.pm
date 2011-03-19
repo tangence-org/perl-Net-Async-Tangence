@@ -14,6 +14,19 @@ our $VERSION = '0.04';
 
 use Carp;
 
+=head1 NAME
+
+C<Net::Async::Tangence::ServerProtocol> - C<Net::Async::Tangence::Protocol>
+subclass for servers
+
+=head1 DESCRIPTION
+
+This subclass of L<Net::Async::Tangence::Protocol> provides additional logic
+required by the server side of a connection. It is not intended to be directly
+used by server implementations.
+
+=cut
+
 sub _init
 {
    my $self = shift;
