@@ -16,6 +16,23 @@ use Carp;
 
 use URI::Split qw( uri_split );
 
+=head1 NAME
+
+C<Net::Async::Tangence::Client> - connect to a C<Tangence> server using
+C<IO::Async>
+
+=head1 DESCRIPTION
+
+This subclass of L<Net::Async::Tangence::Protocol> connects to a L<Tangence>
+server, allowing the client program to access exposed objects in the server.
+It is a concrete implementation of the C<Tangence::Client> mixin.
+
+The following documentation concerns this specific implementation of the
+client; for more general information on the C<Tangence>-specific parts of this
+class, see instead the documentation for L<Tangence::Client>.
+
+=cut
+
 sub new
 {
    my $class = shift;
@@ -28,6 +45,26 @@ sub new
 
    return $self;
 }
+
+=head1 PARAMETERS
+
+The following named parameters may be passed to C<new> or C<configure>:
+
+=over 8
+
+=item identity => STRING
+
+The identity string to send to the server.
+
+=item on_error => STRING or CODE
+
+Default error-handling policy for method calls. If set to either of the
+strings C<carp> or C<croak> then a CODE ref will be created that invokes the
+given function from C<Carp>; otherwise must be a CODE ref.
+
+=back
+
+=cut
 
 sub _init
 {
@@ -66,6 +103,40 @@ sub configure
    $self->SUPER::configure( %params );
 }
 
+=head1 METHODS
+
+=cut
+
+=head2 $client->connect( $url, %args )
+
+Connects to a C<Tangence> server at the given URL.
+
+Takes the following named arguments:
+
+=over 8
+
+=item on_connected => CODE
+
+Invoked once the connection to the server has been established.
+
+ $on_connected->( $client )
+
+=item on_registry => CODE
+
+=item on_root => CODE
+
+Invoked once the registry and root object proxies have been obtained from the
+server. See the documentation the L<Tangence::Client> C<tangence_connected>
+method.
+
+=back
+
+The following URL schemes are recognised:
+
+=over 4
+
+=cut
+
 sub connect
 {
    my $self = shift;
@@ -103,6 +174,20 @@ sub connect
    croak "Unrecognised URL scheme name '$scheme'";
 }
 
+=item * exec
+
+Directly executes the server as a child process. This is largely provided for
+testing purposes, as the server will only run for this one client; it will
+exit when the client disconnects.
+
+ exec:///path/to/command?with+arguments
+
+The URL's path should point to the required command, and the query string will
+be split on C<+> signs and used as the arguments. The authority section of the
+URL will be ignored, so may be left empty.
+
+=cut
+
 sub connect_exec
 {
    my $self = shift;
@@ -137,13 +222,36 @@ sub connect_exec
    $self->tangence_connected( %args );
 }
 
+=item * ssh
+
+A convenient wrapper around the C<exec> scheme, to connect to a server running
+remotely via F<ssh>.
+
+ ssh://host/path/to/command?with+arguments
+
+The URL's authority section will give the SSH server (and optionally
+username), and the path and query sections will be used as for C<exec>.
+
+=cut
+
 sub connect_ssh
 {
    my $self = shift;
-   my ( $host, $argv, %argv ) = @_;
+   my ( $host, $argv, %args ) = @_;
 
-   $self->connect_exec( [ "ssh", $host, @$argv ], %argv );
+   $self->connect_exec( [ "ssh", $host, @$argv ], %args );
 }
+
+=item * tcp
+
+Connects to a server via a TCP socket.
+
+ tcp://host:port/
+
+The URL's authority section will be used to give the server's hostname and
+port number. The other sections of the URL will be ignored.
+
+=cut
 
 sub connect_tcp
 {
@@ -168,6 +276,17 @@ sub connect_tcp
    );
 }
 
+=item * unix
+
+Connects to a server via a UNIX local socket.
+
+ unix:///path/to/socket
+
+The URL's path section will give the path to the local socket. The other
+sections of the URL will be ignored.
+
+=cut
+
 sub connect_unix
 {
    my $self = shift;
@@ -188,6 +307,10 @@ sub connect_unix
       on_connect_error => sub { print STDERR "Cannot connect\n"; },
    );
 }
+
+=back
+
+=cut
 
 =head1 AUTHOR
 
