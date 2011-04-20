@@ -7,6 +7,7 @@ my $build = Module::Build->new(
    module_name => 'Net::Async::Tangence',
    requires => {
       'Encode' => 0,
+      'Exporter' => '5.57',
       'IO::Async::Listener' => '0.36',
       'IO::Async::Loop' => '0.16',
       'IO::Async::Protocol::Stream' => 0,
