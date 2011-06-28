@@ -20,7 +20,9 @@ use t::Ball;
 my $loop = IO::Async::Loop->new();
 testing_loop( $loop );
 
-my $registry = Tangence::Registry->new();
+my $registry = Tangence::Registry->new(
+   tanfile => "t/Ball.tan",
+);
 my $ball = $registry->construct(
    "t::Ball",
    colour => "red",
