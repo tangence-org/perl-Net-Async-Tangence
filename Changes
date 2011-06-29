@@ -1,4 +1,9 @@
 Revision history for Net-Async-Tangence
 
+0.06    CHANGES:
+         * Updated for Tangence 0.06; provide tanfiles instead of in-source
+           package vars for metadata
+         * Use Test::Fatal instead of Test::Exception
+
 0.05    CHANGES:
          * Split modules out from base Tangence distribution
