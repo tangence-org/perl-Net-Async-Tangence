@@ -107,7 +107,7 @@ sub configure
 
 =cut
 
-=head2 $client->connect( $url, %args )
+=head2 $client->connect_url( $url, %args )
 
 Connects to a C<Tangence> server at the given URL.
 
@@ -137,7 +137,7 @@ The following URL schemes are recognised:
 
 =cut
 
-sub connect
+sub connect_url
 {
    my $self = shift;
    my ( $url, %args ) = @_;
