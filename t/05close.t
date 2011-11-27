@@ -40,10 +40,7 @@ my ( $conn1, $conn2 ) = map {
 
    $server->on_stream( my $serverconn = IO::Async::Stream->new( handle => $S1 ) );
 
-   my $client = Net::Async::Tangence::Client->new(
-      handle => $S2,
-      on_closed => sub { undef $conn->{client} },
-   );
+   my $client = Net::Async::Tangence::Client->new( handle => $S2 );
    $loop->add( $client );
 
    my $ballproxy;
@@ -74,9 +71,9 @@ wait_for { defined $conn1->{colour} and defined $conn2->{colour} };
 is( $conn1->{colour}, "green", '$colour is green from connection 1' );
 is( $conn2->{colour}, "green", '$colour is green from connection 2' );
 
-$conn1->{server}->close;
+$conn1->{client}->close;
 
-wait_for { !defined $conn1->{client} };
+$loop->loop_once( 0 ) for 1 .. 10; # ensure the close event is properly flushed
 
 $ball->set_prop_colour( "blue" );
 
