@@ -242,7 +242,7 @@ sub connect_exec
 A convenient wrapper around the C<exec> scheme, to connect to a server running
 remotely via F<ssh>.
 
- ssh://host/path/to/command?with+arguments
+ sshexec://host/path/to/command?with+arguments
 
 The URL's authority section will give the SSH server (and optionally
 username), and the path and query sections will be used as for C<exec>.
