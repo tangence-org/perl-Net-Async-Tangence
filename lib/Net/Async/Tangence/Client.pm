@@ -150,6 +150,12 @@ sub connect_url
       $scheme =~ s/^circle\+// or croak "Found a + within URL scheme that is not 'circle+'";
    }
 
+   my $on_connected = delete $args{on_connected};
+   $args{on_connected} = sub {
+      $on_connected->(@_) if $on_connected;
+      $self->tangence_connected( %args );
+   };
+
    # Legacy name
    $scheme = "sshexec" if $scheme eq "ssh";
 
@@ -221,8 +227,7 @@ sub connect_exec
       )
    );
 
-   $args{on_connected}->( $self ) if $args{on_connected};
-   $self->tangence_connected( %args );
+   $args{on_connected}->( $self );
 }
 
 =item * sshexec
@@ -272,8 +277,7 @@ sub connect_tcp
       on_connected => sub {
          my ( $self ) = @_;
 
-         $args{on_connected}->( $self ) if $args{on_connected};
-         $self->tangence_connected( %args );
+         $args{on_connected}->( $self );
       },
 
       on_connect_error => sub { print STDERR "Cannot connect\n"; },
@@ -307,8 +311,7 @@ sub connect_unix
       on_connected => sub {
          my ( $self ) = @_;
 
-         $args{on_connected}->( $self ) if $args{on_connected};
-         $self->tangence_connected( %args );
+         $args{on_connected}->( $self );
       },
 
       on_connect_error => sub { print STDERR "Cannot connect\n"; },
