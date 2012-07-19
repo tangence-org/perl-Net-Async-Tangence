@@ -177,7 +177,14 @@ sub connect_url
       return $self->connect_tcp( $authority, %args );
    }
    elsif( $scheme eq "unix" ) {
+      # Path will start with a leading /; we need to trim that
+      $path =~ s{^/}{};
       return $self->connect_unix( $path, %args );
+   }
+   elsif( $scheme eq "sshunix" ) {
+      # Path will start with a leading /; we need to trim that
+      $path =~ s{^/}{};
+      return $self->connect_sshunix( $authority, $path, %args );
    }
 
    croak "Unrecognised URL scheme name '$scheme'";
@@ -315,6 +322,70 @@ sub connect_unix
       },
 
       on_connect_error => sub { print STDERR "Cannot connect\n"; },
+   );
+}
+
+=item * sshunix
+
+Connects to a server running remotely via a UNIX socket over F<ssh>.
+
+ sshunix://host/path/to/socket
+
+(This is implemented by running F<perl> remotely and sending it a tiny
+self-contained program that connects STDIN/STDOUT to the given UNIX socket
+path. It requires that the server has F<perl> at least version 5.6 available
+in the path simply as C<perl>)
+
+=cut
+
+# A tiny program we can run remotely to connect STDIN/STDOUT to a UNIX socket
+# given as $ARGV[0]
+use constant _NC_MICRO => <<'EOPERL';
+use Socket qw( AF_UNIX SOCK_STREAM pack_sockaddr_un );
+use IO::Handle;
+socket(my $socket, AF_UNIX, SOCK_STREAM, 0) or die "socket(AF_UNIX): $!\n";
+connect($socket, pack_sockaddr_un($ARGV[0])) or die "connect $ARGV[0]: $!\n";
+my $fd = fileno($socket);
+$socket->blocking(0); $socket->autoflush(1);
+STDIN->blocking(0); STDOUT->autoflush(1);
+my $rin = "";
+vec($rin, 0, 1) = 1;
+vec($rin, $fd, 1) = 1;
+print "READY";
+while(1) {
+   select(my $rout = $rin, undef, undef, undef);
+   if(vec($rout, 0, 1)) {
+      sysread STDIN, my $buffer, 8192 or last;
+      print $socket $buffer;
+   }
+   if(vec($rout, $fd, 1)) {
+      sysread $socket, my $buffer, 8192 or last;
+      print $buffer;
+   }
+}
+EOPERL
+
+sub connect_sshunix
+{
+   my $self = shift;
+   my ( $host, $path, %args ) = @_;
+
+   my $on_connected = delete $args{on_connected};
+
+   # Tell perl we're going to send it a program on STDIN
+   $self->connect_sshexec( $host, [ 'perl', '-', $path ],
+      %args,
+      on_connected => sub {
+         my $self = shift;
+         $self->write( _NC_MICRO . "\n__END__\n" );
+         $self->configure( on_read => sub {
+            my ( $self, $buffref, $eof ) = @_;
+            return 0 unless $$buffref =~ s/READY//;
+            $self->configure( on_read => undef );
+            $on_connected->( $self );
+            return 0;
+         } );
+      }
    );
 }
 
