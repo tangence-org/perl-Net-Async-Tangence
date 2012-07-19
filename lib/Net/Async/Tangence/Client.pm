@@ -150,6 +150,9 @@ sub connect_url
       $scheme =~ s/^circle\+// or croak "Found a + within URL scheme that is not 'circle+'";
    }
 
+   # Legacy name
+   $scheme = "sshexec" if $scheme eq "ssh";
+
    if( $scheme eq "exec" ) {
       # Path will start with a leading /; we need to trim that
       $path =~ s{^/}{};
@@ -157,12 +160,12 @@ sub connect_url
       my @argv = split( m/\+/, $query );
       return $self->connect_exec( [ $path, @argv ], %args );
    }
-   elsif( $scheme eq "ssh" ) {
+   elsif( $scheme eq "sshexec" ) {
       # Path will start with a leading /; we need to trim that
       $path =~ s{^/}{};
       # $query will contain args to exec - split them on +
       my @argv = split( m/\+/, $query );
-      return $self->connect_ssh( $authority, [ $path, @argv ], %args );
+      return $self->connect_sshexec( $authority, [ $path, @argv ], %args );
    }
    elsif( $scheme eq "tcp" ) {
       return $self->connect_tcp( $authority, %args );
@@ -222,7 +225,7 @@ sub connect_exec
    $self->tangence_connected( %args );
 }
 
-=item * ssh
+=item * sshexec
 
 A convenient wrapper around the C<exec> scheme, to connect to a server running
 remotely via F<ssh>.
@@ -232,9 +235,11 @@ remotely via F<ssh>.
 The URL's authority section will give the SSH server (and optionally
 username), and the path and query sections will be used as for C<exec>.
 
+(This scheme is also available as C<ssh>, though this name is now deprecated)
+
 =cut
 
-sub connect_ssh
+sub connect_sshexec
 {
    my $self = shift;
    my ( $host, $argv, %args ) = @_;
