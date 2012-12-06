@@ -59,7 +59,7 @@ $loop->add( $conn );
 
 my $registry;
 
-$conn->connect( 
+$conn->connect_url( 
    $URL,
    on_registry => sub {
       $registry = shift;
