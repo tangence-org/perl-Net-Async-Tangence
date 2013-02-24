@@ -18,6 +18,10 @@ use t::Conversation;
 use Net::Async::Tangence::Client;
 $Tangence::Message::SORT_HASH_KEYS = 1;
 
+unless( VERSION_MAJOR == 0 and VERSION_MINOR == 3 ) {
+   plan skip_all => "Tangence version mismatch";
+}
+
 my $loop = IO::Async::Loop->new();
 testing_loop( $loop );
 

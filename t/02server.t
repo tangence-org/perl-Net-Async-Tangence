@@ -19,6 +19,10 @@ use t::Conversation;
 
 use t::TestObj;
 
+unless( VERSION_MAJOR == 0 and VERSION_MINOR == 3 ) {
+   plan skip_all => "Tangence version mismatch";
+}
+
 use Net::Async::Tangence::Server;
 $Tangence::Message::SORT_HASH_KEYS = 1;
 
