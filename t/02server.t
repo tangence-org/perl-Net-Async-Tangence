@@ -1,8 +1,9 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 
 use strict;
+use warnings;
 
-use Test::More tests => 37;
+use Test::More;
 use Test::HexString;
 use Test::Identity;
 use Test::Memory::Cycle;
@@ -196,3 +197,5 @@ $conn->close;
 undef $server;
 
 is_oneref( $conn, '$conn has refcount 1 after shutdown' );
+
+done_testing;

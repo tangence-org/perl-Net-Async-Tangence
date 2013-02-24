@@ -1,8 +1,9 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 
 use strict;
+use warnings;
 
-use Test::More tests => 39;
+use Test::More;
 use Test::Fatal qw( dies_ok );
 use Test::HexString;
 use Test::Memory::Cycle;
@@ -298,3 +299,5 @@ memory_cycle_ok( $ballproxy, '$ballproxy has no memory cycles' );
 # on account of filehandles
 $client->configure( transport => undef );
 memory_cycle_ok( $client, '$client has no memory cycles' );
+
+done_testing;

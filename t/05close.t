@@ -1,9 +1,9 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 
 use strict;
+use warnings;
 
-use Test::More tests => 4;
-
+use Test::More;
 use IO::Async::Test;
 use IO::Async::Loop;
 use IO::Async::Stream;
@@ -82,3 +82,5 @@ wait_for { defined $conn2->{colour} };
 
 is( $conn1->{colour}, undef,  '$colour is still undef from (closed) connection 1' );
 is( $conn2->{colour}, "blue", '$colour is blue from connection 2' );
+
+done_testing;
