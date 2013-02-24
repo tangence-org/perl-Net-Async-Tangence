@@ -38,6 +38,8 @@ isa_ok( $stream, "Net::Async::Tangence::Protocol", '$stream isa Net::Async::Tang
 
 $loop->add( $stream );
 
+$stream->minor_version( 3 );
+
 my $message;
 
 $message = Tangence::Message->new( $stream, MSG_CALL );
