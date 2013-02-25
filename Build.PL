@@ -13,8 +13,8 @@ my $build = Module::Build->new(
       'IO::Async::Protocol::Stream' => 0,
       'IO::Async::Stream' => 0,
       'IO::Async::Test' => 0,
-      'Tangence::Client' => '0.07',
-      'Tangence::Server' => '0.07',
+      'Tangence::Client' => '0.17',
+      'Tangence::Server' => '0.17',
       'URI::Split' => 0,
    },
    build_requires => {
