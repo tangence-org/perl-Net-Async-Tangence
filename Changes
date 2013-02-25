@@ -1,5 +1,10 @@
 Revision history for Net-Async-Tangence
 
+0.10    CHANGES:
+         * Rewrite unit tests for Tangence 0.17
+         * Version-guard binary protocol-dependent unit tests so they degrade
+           gracefully in future
+
 0.09    CHANGES:
          * Renamed ssh:// URL scheme to sshexec://
          * Added sshunix:// URL scheme that allows directly connecting to a
