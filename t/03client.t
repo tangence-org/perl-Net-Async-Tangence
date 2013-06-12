@@ -9,6 +9,7 @@ use Test::HexString;
 use Test::Memory::Cycle;
 use IO::Async::Test;
 use IO::Async::Loop;
+use IO::Async::OS;
 
 use Tangence::Constants;
 use Tangence::Registry;
@@ -25,7 +26,7 @@ unless( VERSION_MAJOR == 0 and VERSION_MINOR == 3 ) {
 my $loop = IO::Async::Loop->new();
 testing_loop( $loop );
 
-my ( $S1, $S2 ) = $loop->socketpair() or die "Cannot create socket pair - $!";
+my ( $S1, $S2 ) = IO::Async::OS->socketpair() or die "Cannot create socket pair - $!";
 
 {
    my $clientstream = "";
