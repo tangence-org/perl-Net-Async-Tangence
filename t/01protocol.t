@@ -12,7 +12,7 @@ use IO::Async::Stream;
 
 use Tangence::Constants;
 
-unless( VERSION_MAJOR == 0 and VERSION_MINOR == 3 ) {
+unless( VERSION_MAJOR == 0 and VERSION_MINOR == 4 ) {
    plan skip_all => "Tangence version mismatch";
 }
 
@@ -69,7 +69,7 @@ $S2->syswrite( "\x82" . "\0\0\0\x09" .
 
 wait_for { defined $response };
 
-is( $response->type, MSG_RESULT, '$response->type to initial call' );
+is( $response->code, MSG_RESULT, '$response->code to initial call' );
 is( $response->unpack_str, "response", '$response->unpack_str to initial call' );
 
 $S2->syswrite( "\x04" . "\0\0\0\x08" .

@@ -19,11 +19,23 @@ sub new
    return $self;
 }
 
+sub describe
+{
+   my $self = shift;
+   return (ref $self) . qq([scalar=) . $self->get_prop_scalar . q(]);
+}
+
 sub method_method
 {
    my $self = shift;
    my ( $ctx, $i, $s ) = @_;
    return "$i/$s";
+}
+
+sub method_noreturn
+{
+   my $self = shift;
+   return;
 }
 
 sub init_prop_scalar { 123 }

@@ -20,7 +20,7 @@ use t::Conversation;
 
 use t::TestObj;
 
-unless( VERSION_MAJOR == 0 and VERSION_MINOR == 3 ) {
+unless( VERSION_MAJOR == 0 and VERSION_MINOR == 4 ) {
    plan skip_all => "Tangence version mismatch";
 }
 
@@ -77,13 +77,14 @@ is_refcount( $conn, 3, '$conn has refcount 3 initially' );
 
    is_hexstr( wait_for_message, $S2C{INITED}, 'serverstream initially contains INITED message' );
 
-   is( $conn->minor_version, 3, '$conn->minor_version after MSG_INIT' );
+   is( $conn->minor_version, 4, '$conn->minor_version after MSG_INIT' );
 
    $S2->syswrite( $C2S{GETROOT} );
 
    is_hexstr( wait_for_message, $S2C{GETROOT}, 'serverstream contains root object' );
 
-   is_refcount( $obj, 2, '$obj has refcount 2 after MSG_GETROOT' );
+   # lexical $obj + 2 smashed properties
+   is_refcount( $obj, 3, '$obj has refcount 3 after MSG_GETROOT' );
 
    is( $conn->identity, "testscript", '$conn->identity' );
 
@@ -101,9 +102,8 @@ is_refcount( $conn, 3, '$conn has refcount 3 initially' );
 
 # That'll do; everything should be tested by Tangence itself
 
-# Is this right??
-#  one in $obj, one in server 'watches'
-is_refcount( $obj, 2, '$obj has refcount 2 before shutdown' );
+# lexical $obj + 2 smashed properties
+is_refcount( $obj, 3, '$obj has refcount 3 before shutdown' );
 
 is_refcount( $server, 2, '$server has refcount 2 before $loop->remove' );
 
