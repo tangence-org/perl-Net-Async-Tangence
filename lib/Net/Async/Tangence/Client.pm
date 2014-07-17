@@ -41,7 +41,7 @@ sub new
    my $self = $class->SUPER::new( %args );
 
    # It's possible a handle was passed in the constructor.
-   $self->tangence_connected( %args ) if defined $self->transport;
+   $self->tangence_connected( %args ) if defined $self->read_handle;
 
    return $self;
 }
@@ -228,10 +228,8 @@ sub connect_exec
    );
 
    $self->configure(
-      transport => IO::Async::Stream->new(
-         read_handle  => $myread,
-         write_handle => $mywrite,
-      )
+      read_handle  => $myread,
+      write_handle => $mywrite,
    );
 
    $args{on_connected}->( $self );

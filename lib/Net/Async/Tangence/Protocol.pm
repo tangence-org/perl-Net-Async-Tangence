@@ -10,7 +10,7 @@ use warnings;
 
 our $VERSION = '0.11';
 
-use base qw( IO::Async::Protocol::Stream Tangence::Stream );
+use base qw( IO::Async::Stream Tangence::Stream );
 
 use Carp;
 
@@ -21,9 +21,9 @@ C<Tangence::Stream> for C<IO::Async>
 
 =head1 DESCRIPTION
 
-This subclass of L<IO::Async::Protocol::Stream> provides a concrete
-implementation of the L<Tangence::Stream> mixin. It is not intended to be
-directly used by server implementations. Instead, it is subclassed as
+This subclass of L<IO::Async::Stream> provides a concrete implementation of
+the L<Tangence::Stream> mixin. It is not intended to be directly used by
+server implementations. Instead, it is subclassed as
 L<Net::Async::Tangence::Client> and L<Net::Async::Tangence::ServerProtocol>.
 
 =cut

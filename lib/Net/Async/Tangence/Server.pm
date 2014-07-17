@@ -46,26 +46,43 @@ sub _init
 {
    my $self = shift;
    my ( $params ) = @_;
+
+   $params->{handle_constructor} = sub {
+      my $self = shift;
+
+      return Net::Async::Tangence::ServerProtocol->new(
+         registry => $self->{registry},
+         on_closed => $self->_capture_weakself( sub {
+            my $self = shift;
+            $self->remove_child( $_[0] );
+         } ),
+      );
+   };
+
    $self->SUPER::_init( $params );
 
    $self->{registry} = delete $params->{registry} if exists $params->{registry};
 }
 
-sub on_stream
+sub on_accept
 {
    my $self = shift;
-   my ( $stream ) = @_;
-
-   my $conn = Net::Async::Tangence::ServerProtocol->new(
-      transport => $stream,
-      registry => $self->{registry},
-      on_closed => $self->_capture_weakself( sub {
-         my $self = shift;
-         $self->remove_child( $_[0] );
-      } ),
-   );
+   my ( $conn ) = @_;
 
    $self->add_child( $conn );
+}
+
+# Useful for testing
+sub make_new_connection
+{
+   my $self = shift;
+   my ( $sock ) = @_;
+
+   # Mass cheating
+   my $conn = $self->{handle_constructor}->( $self );
+
+   $conn->configure( handle => $sock );
+   $self->on_accept( $conn );
 
    return $conn;
 }

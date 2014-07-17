@@ -65,7 +65,7 @@ my ( $S1, $S2 ) = IO::Async::OS->socketpair() or die "Cannot create socket pair 
    }
 }
 
-my $conn = $server->on_stream( IO::Async::Stream->new( handle => $S1 ) );
+my $conn = $server->make_new_connection( $S1 );
 
 is_refcount( $server, 2, '$server has refcount 2 after new BE' );
 # Three refs: one in Server, one in IO::Async::Loop, one here

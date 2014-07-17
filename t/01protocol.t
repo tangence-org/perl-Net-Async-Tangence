@@ -35,7 +35,7 @@ my ( $S1, $S2 ) = IO::Async::OS->socketpair() or die "Cannot create socket pair 
 
 my @calls;
 my $stream = Testing::Protocol->new(
-   transport => IO::Async::Stream->new( handle => $S1 ),
+   handle => $S1,
 );
 
 ok( defined $stream, 'defined $stream' );

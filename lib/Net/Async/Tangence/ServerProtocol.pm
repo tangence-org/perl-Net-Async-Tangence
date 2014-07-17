@@ -36,6 +36,8 @@ sub _init
    $self->registry( delete $params->{registry} );
 
    $params->{on_closed} ||= undef;
+
+   $self->SUPER::_init( $params );
 }
 
 sub configure

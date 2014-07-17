@@ -42,7 +42,7 @@ $loop->add( $server );
 no_growth {
    my ( $S1, $S2 ) = IO::Async::OS->socketpair() or die "Cannot create socket pair - $!";
 
-   $server->on_stream( my $serverconn = IO::Async::Stream->new( handle => $S1 ) );
+   $server->make_new_connection( $S1 );
 
    my $client = Net::Async::Tangence::Client->new( handle => $S2 );
    $loop->add( $client );

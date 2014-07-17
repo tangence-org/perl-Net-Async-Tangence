@@ -10,7 +10,6 @@ my $build = Module::Build->new(
       'Exporter' => '5.57',
       'IO::Async::Listener' => '0.36',
       'IO::Async::Loop' => '0.16',
-      'IO::Async::Protocol::Stream' => 0,
       'IO::Async::Stream' => 0,
       'IO::Async::Test' => 0,
       'Tangence::Client' => '0.19',

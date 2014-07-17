@@ -39,7 +39,7 @@ my ( $conn1, $conn2 ) = map {
    my ( $S1, $S2 ) = IO::Async::OS->socketpair() or die "Cannot create socket pair - $!";
    my $conn;
 
-   $server->on_stream( my $serverconn = IO::Async::Stream->new( handle => $S1 ) );
+   my $serverconn = $server->make_new_connection( $S1 );
 
    my $client = Net::Async::Tangence::Client->new( handle => $S2 );
    $loop->add( $client );
