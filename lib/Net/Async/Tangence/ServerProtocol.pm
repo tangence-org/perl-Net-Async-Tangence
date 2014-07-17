@@ -11,7 +11,7 @@ use warnings;
 use base qw( Net::Async::Tangence::Protocol Tangence::Server );
 use mro 'c3';
 
-our $VERSION = '0.11';
+our $VERSION = '0.12';
 
 use Carp;
 

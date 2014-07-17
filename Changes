@@ -1,5 +1,13 @@
 Revision history for Net-Async-Tangence
 
+0.12    2014/07/18 00:57:31
+        [CHANGES]
+         * Don't subclass from now-deprecated IO::Async::Protocol::Stream
+
+        [BUGFIXES]
+         * Prevent memory leak on disconnect by ensuring that C3 MRO is in
+           effect for "diamond-of-death" structure of ServerProtocol
+
 0.11    CHANGES:
          * ->socketpair is now in IO::Async::OS not $loop
 
