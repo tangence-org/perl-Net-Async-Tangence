@@ -50,14 +50,12 @@ no_growth {
    my $ballproxy;
    wait_for { $ballproxy = $client->rootobj };
 
-   my $watched;
-   $ballproxy->watch_property(
-      property => "colour",
+   my $f = $ballproxy->watch_property( "colour",
       on_set => sub {},
-      on_watched => sub { $watched++ },
    );
 
-   wait_for { $watched };
+   wait_for { $f->is_ready };
+   $f->get;
 
    $client->close;
    $loop->loop_once( 0 );

@@ -70,20 +70,17 @@ my $objproxy = $client->rootobj;
 
 # Methods
 {
-   my $result;
-   $objproxy->call_method(
-      method => "method",
-      args   => [ 10, "hello" ],
-      on_result => sub { $result = shift },
+   my $f = $objproxy->call_method(
+      method => 10, "hello",
    );
 
    is_hexstr( wait_for_message, $C2S{CALL}, 'client stream contains MSG_CALL' );
 
    $S2->syswrite( $S2C{CALL} );
 
-   wait_for { defined $result };
+   wait_for { $f->is_ready };
 
-   is( $result, "10/hello", 'result of call_method()' );
+   is( scalar $f->get, "10/hello", 'result of call_method()' );
 }
 
 # That'll do; everything should be tested by Tangence itself

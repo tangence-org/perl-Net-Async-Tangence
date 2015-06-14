@@ -12,7 +12,7 @@ my $build = Module::Build->new(
       'IO::Async::Loop' => '0.16',
       'IO::Async::Stream' => 0,
       'IO::Async::Test' => 0,
-      'Tangence::Client' => '0.19',
+      'Tangence::Client' => '0.20_001',
       'Tangence::Server' => '0.19',
       'URI::Split' => 0,
    },

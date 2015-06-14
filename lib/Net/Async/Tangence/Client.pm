@@ -1,7 +1,7 @@
 #  You may distribute under the terms of either the GNU General Public License
 #  or the Artistic License (the same terms as Perl itself)
 #
-#  (C) Paul Evans, 2010-2011 -- leonerd@leonerd.org.uk
+#  (C) Paul Evans, 2010-2015 -- leonerd@leonerd.org.uk
 
 package Net::Async::Tangence::Client;
 
@@ -106,6 +106,12 @@ sub configure
 =head1 METHODS
 
 =cut
+
+sub new_future
+{
+   my $self = shift;
+   return $self->loop->new_future;
+}
 
 =head2 $client->connect_url( $url, %args )
 

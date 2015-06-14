@@ -53,14 +53,12 @@ my ( $conn1, $conn2 ) = map {
       ballproxy => $ballproxy,
    };
 
-   my $watched;
-   $ballproxy->watch_property(
-      property => "colour",
+   my $f = $ballproxy->watch_property( "colour",
       on_set => sub { $conn->{colour} = shift },
-      on_watched => sub { $watched++ },
    );
 
-   wait_for { $watched };
+   wait_for { $f->is_ready };
+   $f->get;
 
    $conn
 } 1 .. 2;
