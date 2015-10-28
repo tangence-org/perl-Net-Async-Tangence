@@ -57,74 +57,45 @@ my $conn = Net::Async::Tangence::Client->new(
 
 $loop->add( $conn );
 
+$conn->connect_url( $URL )->get;
+
 my $registry;
-
-$conn->connect_url( 
-   $URL,
-   on_registry => sub { $registry = shift },
-);
-
-$loop->loop_once until defined $registry;
+$loop->loop_once until $registry = $conn->registry;
 
 if( !@ARGV ) {
-   $registry->get_property(
-      property => "objects",
+   my $objshash = $registry->get_property( "objects" )->get;
 
-      on_value => sub {
-         my ( $objshash ) = @_;
+   foreach my $id ( sort { $a <=> $b } keys %$objshash ) {
+      my $desc = $objshash->{$id};
 
-         foreach my $id ( sort { $a <=> $b } keys %$objshash ) {
-            my $desc = $objshash->{$id};
-
-            printf "%-6d: %s\n", $id, $desc;
-         }
-
-         $loop->loop_stop;
-      },
-
-   );
+      printf "%-6d: %s\n", $id, $desc;
+   }
 }
 elsif( $ARGV[0] eq "-i" ) {
    shift @ARGV; # eat -i
    my $objid = shift @ARGV;
 
-   $registry->call_method(
-      method  => "get_by_id",
-      args    => [ $objid ],
+   my $obj = $registry->call_method( "get_by_id", $objid )->get;
 
-      on_result => sub {
-         my ( $obj ) = @_;
-         print Data::Dump::dump( $obj->introspect ) . "\n";
-         $loop->loop_stop;
-      },
-   );
+   print "Object is a " . $obj->classname . "\n";
+   my $class = $obj->class;
+
+   print "Class supports:\n";
+   print "  method $_\n" for keys %{ $class->methods };
+   print "  event $_\n" for keys %{ $class->events };
+   print "  property $_\n" for keys %{ $class->properties };
 }
 elsif( $ARGV[0] eq "-p" ) {
    shift @ARGV; # eat -p
    my $objid    = shift @ARGV;
    my $property = shift @ARGV;
 
-   $registry->call_method(
-      method => "get_by_id",
-      args   => [ $objid ],
+   my $obj = $registry->call_method( "get_by_id", $objid )->get;
 
-      on_result => sub {
-         my ( $obj ) = @_;
+   my $value = $obj->get_property( $property )->get;
 
-         $obj->get_property(
-            property => $property,
-
-            on_value => sub {
-               my ( $value ) = @_;
-               print Data::Dump::dump( $value ) . "\n";
-               $loop->loop_stop;
-            },
-         );
-      },
-   );
+   print Data::Dump::dump( $value ) . "\n";
 }
 else {
    die "Unrecognised operation $ARGV[0]\n";
 }
-
-$loop->loop_forever;
