@@ -107,6 +107,9 @@ sub configure
 
 =head1 METHODS
 
+The following methods documented with a trailing call to C<< ->get >> return
+L<Future> instances.
+
 =cut
 
 sub new_future
@@ -115,7 +118,9 @@ sub new_future
    return $self->loop->new_future;
 }
 
-=head2 $client->connect_url( $url, %args )
+=head2 connect_url
+
+   $client->connect_url( $url, %args )->get
 
 Connects to a C<Tangence> server at the given URL.
 
