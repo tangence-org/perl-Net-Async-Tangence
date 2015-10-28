@@ -8,6 +8,7 @@ my $build = Module::Build->new(
    requires => {
       'Encode' => 0,
       'Exporter' => '5.57',
+      'Future' => 0,
       'IO::Async::Listener' => '0.36',
       'IO::Async::Loop' => '0.16',
       'IO::Async::Stream' => 0,

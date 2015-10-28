@@ -14,6 +14,8 @@ our $VERSION = '0.12';
 
 use Carp;
 
+use Future;
+
 use URI::Split qw( uri_split );
 
 =head1 NAME
@@ -121,12 +123,6 @@ Takes the following named arguments:
 
 =over 8
 
-=item on_connected => CODE
-
-Invoked once the connection to the server has been established.
-
- $on_connected->( $client )
-
 =item on_registry => CODE
 
 =item on_root => CODE
@@ -156,44 +152,45 @@ sub connect_url
       $scheme =~ s/^circle\+// or croak "Found a + within URL scheme that is not 'circle+'";
    }
 
-   my $on_connected = delete $args{on_connected};
-   $args{on_connected} = sub {
-      $on_connected->(@_) if $on_connected;
-      $self->tangence_connected( %args );
-   };
-
    # Legacy name
    $scheme = "sshexec" if $scheme eq "ssh";
+
+   my $f;
 
    if( $scheme eq "exec" ) {
       # Path will start with a leading /; we need to trim that
       $path =~ s{^/}{};
       # $query will contain args to exec - split them on +
       my @argv = split( m/\+/, $query );
-      return $self->connect_exec( [ $path, @argv ], %args );
+      $f = $self->connect_exec( [ $path, @argv ], %args );
    }
    elsif( $scheme eq "sshexec" ) {
       # Path will start with a leading /; we need to trim that
       $path =~ s{^/}{};
       # $query will contain args to exec - split them on +
       my @argv = split( m/\+/, $query );
-      return $self->connect_sshexec( $authority, [ $path, @argv ], %args );
+      $f = $self->connect_sshexec( $authority, [ $path, @argv ], %args );
    }
    elsif( $scheme eq "tcp" ) {
-      return $self->connect_tcp( $authority, %args );
+      $f = $self->connect_tcp( $authority, %args );
    }
    elsif( $scheme eq "unix" ) {
       # Path will start with a leading /; we need to trim that
       $path =~ s{^/}{};
-      return $self->connect_unix( $path, %args );
+      $f = $self->connect_unix( $path, %args );
    }
    elsif( $scheme eq "sshunix" ) {
       # Path will start with a leading /; we need to trim that
       $path =~ s{^/}{};
-      return $self->connect_sshunix( $authority, $path, %args );
+      $f = $self->connect_sshunix( $authority, $path, %args );
+   }
+   else {
+      croak "Unrecognised URL scheme name '$scheme'";
    }
 
-   croak "Unrecognised URL scheme name '$scheme'";
+   return $f->on_done( sub {
+      $self->tangence_connected( %args )
+   });
 }
 
 =item * exec
@@ -238,7 +235,7 @@ sub connect_exec
       write_handle => $mywrite,
    );
 
-   $args{on_connected}->( $self );
+   Future->done;
 }
 
 =item * sshexec
@@ -284,15 +281,6 @@ sub connect_tcp
    $self->connect(
       host     => $host,
       service  => $port,
-
-      on_connected => sub {
-         my ( $self ) = @_;
-
-         $args{on_connected}->( $self );
-      },
-
-      on_connect_error => sub { print STDERR "Cannot connect\n"; },
-      on_resolve_error => sub { print STDERR "Cannot resolve - $_[0]\n"; },
    );
 }
 
@@ -318,14 +306,6 @@ sub connect_unix
          socktype => 'stream',
          path     => $path,
       },
-
-      on_connected => sub {
-         my ( $self ) = @_;
-
-         $args{on_connected}->( $self );
-      },
-
-      on_connect_error => sub { print STDERR "Cannot connect\n"; },
    );
 }
 
@@ -374,23 +354,22 @@ sub connect_sshunix
    my $self = shift;
    my ( $host, $path, %args ) = @_;
 
-   my $on_connected = delete $args{on_connected};
-
    # Tell perl we're going to send it a program on STDIN
-   $self->connect_sshexec( $host, [ 'perl', '-', $path ],
-      %args,
-      on_connected => sub {
-         my $self = shift;
-         $self->write( _NC_MICRO . "\n__END__\n" );
-         $self->configure( on_read => sub {
-            my ( $self, $buffref, $eof ) = @_;
-            return 0 unless $$buffref =~ s/READY//;
-            $self->configure( on_read => undef );
-            $on_connected->( $self );
-            return 0;
-         } );
-      }
-   );
+   $self->connect_sshexec( $host, [ 'perl', '-', $path ], %args )
+   ->then( sub {
+      $self->write( _NC_MICRO . "\n__END__\n" );
+      my $f = $self->new_future;
+
+      $self->configure( on_read => sub {
+         my ( $self, $buffref, $eof ) = @_;
+         return 0 unless $$buffref =~ s/READY//;
+         $self->configure( on_read => undef );
+         $f->done;
+         return 0;
+      } );
+
+      return $f;
+   });
 }
 
 =back
