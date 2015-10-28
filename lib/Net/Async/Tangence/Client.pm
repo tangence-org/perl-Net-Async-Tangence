@@ -120,9 +120,10 @@ sub new_future
 
 =head2 connect_url
 
-   $client->connect_url( $url, %args )->get
+   $rootobj = $client->connect_url( $url, %args )->get
 
-Connects to a C<Tangence> server at the given URL.
+Connects to a C<Tangence> server at the given URL. The returned L<Future> will
+yield the root object proxy once it has been obtained.
 
 Takes the following named arguments:
 
@@ -193,8 +194,21 @@ sub connect_url
       croak "Unrecognised URL scheme name '$scheme'";
    }
 
-   return $f->on_done( sub {
-      $self->tangence_connected( %args )
+   return $f->then( sub {
+      my $on_root = $args{on_root};
+
+      my $root_f = $self->new_future;
+
+      $self->tangence_connected( %args,
+         on_root => sub {
+            my ( $root ) = @_;
+
+            $on_root->( $root ) if $on_root;
+            $root_f->done( $root );
+         },
+      );
+
+      $root_f;
    });
 }
 
