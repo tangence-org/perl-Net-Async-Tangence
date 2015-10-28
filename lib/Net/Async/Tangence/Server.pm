@@ -11,7 +11,7 @@ use warnings;
 use IO::Async::Listener '0.36';
 use base qw( IO::Async::Listener );
 
-our $VERSION = '0.12';
+our $VERSION = '0.13';
 
 use Carp;
 

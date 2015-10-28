@@ -1,5 +1,10 @@
 Revision history for Net-Async-Tangence
 
+0.13    2015/10/28 21:09:06
+        [BREAKING CHANGES]
+         * Client API returns Futures
+         * Use Tangence 0.21's Future-returning ObjectProxy API
+
 0.12    2014/07/18 00:57:31
         [CHANGES]
          * Don't subclass from now-deprecated IO::Async::Protocol::Stream
