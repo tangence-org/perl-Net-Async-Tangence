@@ -8,7 +8,7 @@ package Net::Async::Tangence::Protocol;
 use strict;
 use warnings;
 
-our $VERSION = '0.13';
+our $VERSION = '0.14';
 
 use base qw( IO::Async::Stream Tangence::Stream );
 

@@ -1,5 +1,11 @@
 Revision history for Net-Async-Tangence
 
+0.14    2017/01/08 00:38:11
+        [BUGFIXES]
+         * Enable arrayification of Struct::Dumb instances while Devel::Cycle
+           is looking at them (RT119750)
+         * Add 'use lib ".";' to keep perl 5.24+ happy
+
 0.13    2015/10/28 21:09:06
         [BREAKING CHANGES]
          * Client API returns Futures
