@@ -111,11 +111,16 @@ $loop->remove( $server );
 
 is_oneref( $server, '$server has refcount 1 before shutdown' );
 
-memory_cycle_ok( $obj, '$obj has no memory cycles' );
-memory_cycle_ok( $registry, '$registry has no memory cycles' );
-# Can't easily do $server yet because Devel::Cycle will throw
-#   Unhandled type: GLOB at /usr/share/perl5/Devel/Cycle.pm line 107.
-# on account of filehandles
+{
+   no warnings 'redefine';
+   local *Tangence::Property::Instance::_forbid_arrayification = sub {};
+
+   memory_cycle_ok( $obj, '$obj has no memory cycles' );
+   memory_cycle_ok( $registry, '$registry has no memory cycles' );
+   # Can't easily do $server yet because Devel::Cycle will throw
+   #   Unhandled type: GLOB at /usr/share/perl5/Devel/Cycle.pm line 107.
+   # on account of filehandles
+}
 
 $conn->close;
 undef $server;

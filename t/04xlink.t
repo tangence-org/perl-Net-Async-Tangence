@@ -61,14 +61,19 @@ my $objproxy = $client->rootobj;
 
 # That'll do; everything should be tested by Tangence itself
 
-memory_cycle_ok( $obj, '$obj has no memory cycles' );
-memory_cycle_ok( $registry, '$registry has no memory cycles' );
-memory_cycle_ok( $objproxy, '$objproxy has no memory cycles' );
+{
+   no warnings 'redefine';
+   local *Tangence::Property::Instance::_forbid_arrayification = sub {};
 
-# Deconfigure the connection otherwise Devel::Cycle will throw
-#   Unhandled type: GLOB at /usr/share/perl5/Devel/Cycle.pm line 107.
-# on account of filehandles
-$client->configure( handle => undef );
-memory_cycle_ok( $client, '$client has no memory cycles' );
+   memory_cycle_ok( $obj, '$obj has no memory cycles' );
+   memory_cycle_ok( $registry, '$registry has no memory cycles' );
+   memory_cycle_ok( $objproxy, '$objproxy has no memory cycles' );
+
+   # Deconfigure the connection otherwise Devel::Cycle will throw
+   #   Unhandled type: GLOB at /usr/share/perl5/Devel/Cycle.pm line 107.
+   # on account of filehandles
+   $client->configure( handle => undef );
+   memory_cycle_ok( $client, '$client has no memory cycles' );
+}
 
 done_testing;
