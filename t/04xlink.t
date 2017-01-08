@@ -17,6 +17,7 @@ use Tangence::Registry;
 use Net::Async::Tangence::Server;
 use Net::Async::Tangence::Client;
 
+use lib ".";
 use t::TestObj;
 
 my $loop = IO::Async::Loop->new();

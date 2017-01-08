@@ -14,6 +14,7 @@ use IO::Async::OS;
 use Tangence::Constants;
 use Tangence::Registry;
 
+use lib ".";
 use t::Conversation;
 
 use Net::Async::Tangence::Client;

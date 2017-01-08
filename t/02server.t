@@ -16,6 +16,7 @@ use IO::Async::Stream;
 use Tangence::Constants;
 use Tangence::Registry;
 
+use lib ".";
 use t::Conversation;
 
 use t::TestObj;
