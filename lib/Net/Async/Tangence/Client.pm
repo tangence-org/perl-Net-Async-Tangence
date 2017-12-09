@@ -151,6 +151,7 @@ sub connect_url
    my ( $url, %args ) = @_;
 
    my ( $scheme, $authority, $path, $query, $fragment ) = uri_split( $url );
+   defined $query or $query = "";
 
    defined $scheme or croak "Invalid URL '$url'";
 
