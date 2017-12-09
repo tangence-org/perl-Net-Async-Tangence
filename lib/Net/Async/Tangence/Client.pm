@@ -1,7 +1,7 @@
 #  You may distribute under the terms of either the GNU General Public License
 #  or the Artistic License (the same terms as Perl itself)
 #
-#  (C) Paul Evans, 2010-2015 -- leonerd@leonerd.org.uk
+#  (C) Paul Evans, 2010-2017 -- leonerd@leonerd.org.uk
 
 package Net::Async::Tangence::Client;
 
@@ -245,7 +245,8 @@ sub connect_exec
       ],
 
       on_exit => sub {
-         print STDERR "Child exited unexpectedly\n";
+         my ( undef, $exitcode, $dollarbang ) = @_;
+         print STDERR "Child exited unexpectedly (status=$exitcode, \$!=$dollarbang)\n";
       },
    );
 
