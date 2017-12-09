@@ -169,27 +169,27 @@ sub connect_url
       $path =~ s{^/}{};
       # $query will contain args to exec - split them on +
       my @argv = split( m/\+/, $query );
-      $f = $self->connect_exec( [ $path, @argv ], %args );
+      $f = $self->connect_exec( [ $path, @argv ] );
    }
    elsif( $scheme eq "sshexec" ) {
       # Path will start with a leading /; we need to trim that
       $path =~ s{^/}{};
       # $query will contain args to exec - split them on +
       my @argv = split( m/\+/, $query );
-      $f = $self->connect_sshexec( $authority, [ $path, @argv ], %args );
+      $f = $self->connect_sshexec( $authority, [ $path, @argv ] );
    }
    elsif( $scheme eq "tcp" ) {
-      $f = $self->connect_tcp( $authority, %args );
+      $f = $self->connect_tcp( $authority );
    }
    elsif( $scheme eq "unix" ) {
       # Path will start with a leading /; we need to trim that
       $path =~ s{^/}{};
-      $f = $self->connect_unix( $path, %args );
+      $f = $self->connect_unix( $path );
    }
    elsif( $scheme eq "sshunix" ) {
       # Path will start with a leading /; we need to trim that
       $path =~ s{^/}{};
-      $f = $self->connect_sshunix( $authority, $path, %args );
+      $f = $self->connect_sshunix( $authority, $path );
    }
    else {
       croak "Unrecognised URL scheme name '$scheme'";
@@ -230,7 +230,7 @@ URL will be ignored, so may be left empty.
 sub connect_exec
 {
    my $self = shift;
-   my ( $command, %args ) = @_;
+   my ( $command ) = @_;
 
    my $loop = $self->get_loop;
 
@@ -276,9 +276,9 @@ username), and the path and query sections will be used as for C<exec>.
 sub connect_sshexec
 {
    my $self = shift;
-   my ( $host, $argv, %args ) = @_;
+   my ( $host, $argv ) = @_;
 
-   $self->connect_exec( [ "ssh", $host, @$argv ], %args );
+   $self->connect_exec( [ "ssh", $host, @$argv ] );
 }
 
 =item * tcp
@@ -295,7 +295,7 @@ port number. The other sections of the URL will be ignored.
 sub connect_tcp
 {
    my $self = shift;
-   my ( $authority, %args ) = @_;
+   my ( $authority ) = @_;
 
    my ( $host, $port ) = $authority =~ m/^(.*):(.*)$/;
 
@@ -319,7 +319,7 @@ sections of the URL will be ignored.
 sub connect_unix
 {
    my $self = shift;
-   my ( $path, %args ) = @_;
+   my ( $path ) = @_;
 
    $self->connect(
       addr => {
@@ -373,10 +373,10 @@ EOPERL
 sub connect_sshunix
 {
    my $self = shift;
-   my ( $host, $path, %args ) = @_;
+   my ( $host, $path ) = @_;
 
    # Tell perl we're going to send it a program on STDIN
-   $self->connect_sshexec( $host, [ 'perl', '-', $path ], %args )
+   $self->connect_sshexec( $host, [ 'perl', '-', $path ] )
    ->then( sub {
       $self->write( _NC_MICRO . "\n__END__\n" );
       my $f = $self->new_future;
