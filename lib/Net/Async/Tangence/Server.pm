@@ -1,7 +1,7 @@
 #  You may distribute under the terms of either the GNU General Public License
 #  or the Artistic License (the same terms as Perl itself)
 #
-#  (C) Paul Evans, 2010-2011 -- leonerd@leonerd.org.uk
+#  (C) Paul Evans, 2010-2017 -- leonerd@leonerd.org.uk
 
 package Net::Async::Tangence::Server;
 
@@ -82,6 +82,22 @@ sub make_new_connection
    my $conn = $self->{handle_constructor}->( $self );
 
    $conn->configure( handle => $sock );
+   $self->on_accept( $conn );
+
+   return $conn;
+}
+
+# More testing utilities
+sub accept_stdio
+{
+   my $self = shift;
+
+   my $conn = $self->{handle_constructor}->( $self );
+
+   $conn->configure(
+      read_handle  => \*STDIN,
+      write_handle => \*STDOUT,
+   );
    $self->on_accept( $conn );
 
    return $conn;
