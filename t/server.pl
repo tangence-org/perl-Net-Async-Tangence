@@ -2,6 +2,13 @@
 
 use strict;
 use warnings;
+
+BEGIN {
+   use File::Basename qw( dirname );
+   # this script lives in SRCDIR/t/server.pl
+   # chdir to SRCDIR
+   chdir dirname( dirname( $0 ) );
+}
 use blib;
 
 use IO::Async::Loop;
