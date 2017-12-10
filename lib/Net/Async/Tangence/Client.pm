@@ -163,41 +163,36 @@ sub connect_url
    $scheme = "sshexec" if $scheme eq "ssh";
 
    my $authority = $uri->authority;
+
    my $path      = $uri->path;
+   # Path will start with a leading /; we need to trim that
+   $path =~ s{^/}{};
+
    my $query     = $uri->query;
    defined $query or $query = "";
 
    my $f;
 
    if( $scheme eq "exec" ) {
-      # Path will start with a leading /; we need to trim that
-      $path =~ s{^/}{};
       # $query will contain args to exec - split them on +
-      my @argv = split( m/\+/, $query );
-      $f = $self->connect_exec( [ $path, @argv ] );
-   }
-   elsif( $scheme eq "sshexec" ) {
-      # Path will start with a leading /; we need to trim that
-      $path =~ s{^/}{};
-      # $query will contain args to exec - split them on +
-      my @argv = split( m/\+/, $query );
-      $f = $self->connect_sshexec( $authority, [ $path, @argv ] );
+      $f = $self->connect_exec( [ $path, split m/\+/, $query ] );
    }
    elsif( $scheme eq "tcp" ) {
       $f = $self->connect_tcp( $authority );
    }
    elsif( $scheme eq "unix" ) {
-      # Path will start with a leading /; we need to trim that
-      $path =~ s{^/}{};
       $f = $self->connect_unix( $path );
    }
-   elsif( $scheme eq "sshunix" ) {
-      # Path will start with a leading /; we need to trim that
-      $path =~ s{^/}{};
-      $f = $self->connect_sshunix( $authority, $path );
-   }
    else {
-      croak "Unrecognised URL scheme name '$scheme'";
+      my $connectorpkg = "Net::Async::Tangence::Client::via::$scheme";
+      ( my $connectorfile = "$connectorpkg.pm" ) =~ s{::}{/}g;
+      if( eval { require $connectorfile } and
+            my $code = $connectorpkg->can( 'connect' ) ) {
+         $f = $code->( $self, $uri );
+      }
+      else {
+         croak "Unrecognised URL scheme name '$scheme'";
+      }
    }
 
    return $f->then( sub {
@@ -278,14 +273,6 @@ username), and the path and query sections will be used as for C<exec>.
 
 =cut
 
-sub connect_sshexec
-{
-   my $self = shift;
-   my ( $host, $argv ) = @_;
-
-   $self->connect_exec( [ "ssh", $host, @$argv ] );
-}
-
 =item * tcp
 
 Connects to a server via a TCP socket.
@@ -347,56 +334,6 @@ path. It requires that the server has F<perl> at least version 5.6 available
 in the path simply as C<perl>)
 
 =cut
-
-# A tiny program we can run remotely to connect STDIN/STDOUT to a UNIX socket
-# given as $ARGV[0]
-use constant _NC_MICRO => <<'EOPERL';
-use Socket qw( AF_UNIX SOCK_STREAM pack_sockaddr_un );
-use IO::Handle;
-socket(my $socket, AF_UNIX, SOCK_STREAM, 0) or die "socket(AF_UNIX): $!\n";
-connect($socket, pack_sockaddr_un($ARGV[0])) or die "connect $ARGV[0]: $!\n";
-my $fd = fileno($socket);
-$socket->blocking(0); $socket->autoflush(1);
-STDIN->blocking(0); STDOUT->autoflush(1);
-my $rin = "";
-vec($rin, 0, 1) = 1;
-vec($rin, $fd, 1) = 1;
-print "READY";
-while(1) {
-   select(my $rout = $rin, undef, undef, undef);
-   if(vec($rout, 0, 1)) {
-      sysread STDIN, my $buffer, 8192 or last;
-      print $socket $buffer;
-   }
-   if(vec($rout, $fd, 1)) {
-      sysread $socket, my $buffer, 8192 or last;
-      print $buffer;
-   }
-}
-EOPERL
-
-sub connect_sshunix
-{
-   my $self = shift;
-   my ( $host, $path ) = @_;
-
-   # Tell perl we're going to send it a program on STDIN
-   $self->connect_sshexec( $host, [ 'perl', '-', $path ] )
-   ->then( sub {
-      $self->write( _NC_MICRO . "\n__END__\n" );
-      my $f = $self->new_future;
-
-      $self->configure( on_read => sub {
-         my ( $self, $buffref, $eof ) = @_;
-         return 0 unless $$buffref =~ s/READY//;
-         $self->configure( on_read => undef );
-         $f->done;
-         return 0;
-      } );
-
-      return $f;
-   });
-}
 
 =back
 
