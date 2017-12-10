@@ -15,8 +15,9 @@ our $VERSION = '0.14';
 use Carp;
 
 use Future;
+use Scalar::Util qw( blessed );
 
-use URI::Split qw( uri_split );
+use URI;
 
 =head1 NAME
 
@@ -150,10 +151,9 @@ sub connect_url
    my $self = shift;
    my ( $url, %args ) = @_;
 
-   my ( $scheme, $authority, $path, $query, $fragment ) = uri_split( $url );
-   defined $query or $query = "";
+   my $uri = ( blessed $url && $url->isa( "URI" ) ) ? $url : URI->new( $url );
 
-   defined $scheme or croak "Invalid URL '$url'";
+   my $scheme = $uri->scheme;
 
    if( $scheme =~ m/\+/ ) {
       $scheme =~ s/^circle\+// or croak "Found a + within URL scheme that is not 'circle+'";
@@ -161,6 +161,11 @@ sub connect_url
 
    # Legacy name
    $scheme = "sshexec" if $scheme eq "ssh";
+
+   my $authority = $uri->authority;
+   my $path      = $uri->path;
+   my $query     = $uri->query;
+   defined $query or $query = "";
 
    my $f;
 
