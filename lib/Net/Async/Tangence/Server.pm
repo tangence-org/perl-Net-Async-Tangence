@@ -1,7 +1,7 @@
 #  You may distribute under the terms of either the GNU General Public License
 #  or the Artistic License (the same terms as Perl itself)
 #
-#  (C) Paul Evans, 2010-2017 -- leonerd@leonerd.org.uk
+#  (C) Paul Evans, 2010-2020 -- leonerd@leonerd.org.uk
 
 package Net::Async::Tangence::Server;
 
@@ -101,6 +101,31 @@ sub accept_stdio
    $self->on_accept( $conn );
 
    return $conn;
+}
+
+=head1 OVERRIDEABLE METHODS
+
+The following methods are provided but intended to be overridden if the
+implementing class wishes to provide different behaviour from the default.
+
+=cut
+
+=head2 conn_permits_registry
+
+   $allow = $server->conn_permits_registry( $conn )
+
+Invoked when a C<GETREGISTRY> message is received from the client on the given
+connection object. This method should return a boolean to indicate whether the
+client is allowed to access the object registry.
+
+The default implementation always permits this, but an overridden method may
+decide to disallow it in some situations.
+
+=cut
+
+sub conn_permits_registry
+{
+   return 1;
 }
 
 =head1 AUTHOR

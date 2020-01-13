@@ -1,7 +1,7 @@
 #  You may distribute under the terms of either the GNU General Public License
 #  or the Artistic License (the same terms as Perl itself)
 #
-#  (C) Paul Evans, 2010-2011 -- leonerd@leonerd.org.uk
+#  (C) Paul Evans, 2010-2020 -- leonerd@leonerd.org.uk
 
 package Net::Async::Tangence::ServerProtocol;
 
@@ -55,6 +55,12 @@ sub configure
    }
 
    $self->SUPER::configure( %params );
+}
+
+sub permit_registry
+{
+   my $self = shift;
+   return $self->parent->conn_permits_registry( $self );
 }
 
 =head1 AUTHOR
