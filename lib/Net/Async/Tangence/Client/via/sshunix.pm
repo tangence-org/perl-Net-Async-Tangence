@@ -8,7 +8,7 @@ package Net::Async::Tangence::Client::via::sshunix;
 use strict;
 use warnings;
 
-our $VERSION = '0.14';
+our $VERSION = '0.15';
 
 # A tiny program we can run remotely to connect STDIN/STDOUT to a UNIX socket
 # given as $ARGV[0]
