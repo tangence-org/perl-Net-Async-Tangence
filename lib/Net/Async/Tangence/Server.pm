@@ -110,6 +110,24 @@ implementing class wishes to provide different behaviour from the default.
 
 =cut
 
+=head2 conn_rootobj
+
+   $rootobj = $server->conn_rootobj( $conn, $identity )
+
+Invoked when a C<GETROOT> message is received from the client, this method
+should return a L<Tangence::Object> as root object for the connection.
+
+The default implementation will return the object with ID 1; i.e. the first
+object created in the registry.
+
+=cut
+
+sub conn_rootobj
+{
+   my $self = shift;
+   return $self->{registry}->get_by_id( 1 );
+}
+
 =head2 conn_permits_registry
 
    $allow = $server->conn_permits_registry( $conn )

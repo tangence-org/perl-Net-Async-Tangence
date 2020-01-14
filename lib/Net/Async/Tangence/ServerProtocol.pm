@@ -57,6 +57,14 @@ sub configure
    $self->SUPER::configure( %params );
 }
 
+sub rootobj
+{
+   my $self = shift;
+   my ( $identity ) = @_;
+
+   return $self->parent->conn_rootobj( $self, $identity );
+}
+
 sub permit_registry
 {
    my $self = shift;
